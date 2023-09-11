@@ -1,0 +1,18 @@
+def W_Bin(L,x):
+    f = 0
+    l = len(L) - 1
+
+    while(f<=l):
+        m_id = (f+l)//2
+        if L[m_id] < x:
+            f = m_id + 1
+        elif L[m_id] > x:
+            l = m_id - 1
+        else: return m_id
+
+    return None
+
+L = [1,2,3,4,5,6,7,8,9]
+x = 4
+
+print(W_Bin(L,x))
