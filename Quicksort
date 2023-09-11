@@ -1,0 +1,37 @@
+from timeit import timeit
+
+def quicksort(array, left, right):
+    if left < right:
+        pos = partition(array, left, right)
+        quicksort(array, left, pos - 1)
+        quicksort(array, pos + 1, right)
+
+def partition(array, left, right):
+    i = left
+    j = right - 1
+    array[right], array[(right + left)//2] = array[(right + left)//2], array[right]
+    pivot = array[right]
+
+    while i < j:
+        while i < right and array[i] < pivot:
+
+            i += 1
+
+        while j > left and array[j] >= pivot:
+            j -= 1
+
+        if i < j:
+            array[i], array[j] = array[j], array[i]
+
+    if array[i] > pivot:
+        array[i], array[right] = array[right], array[i]
+
+    return i
+
+array = [22, 11, 88, 66, 55, 77,  33, 44]
+quicksort(array, 0, len(array) - 1)
+print(array)
+
+quicksort_time= timeit(lambda: (quicksort(array, 0, len(array) - 1)), number = 10000)
+print(quicksort_time)
+
