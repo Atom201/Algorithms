@@ -1,0 +1,182 @@
+import random
+from functools import wraps
+from time import time
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+
+def create_array(num_of_elements):
+
+    a = [random.randint(1,50000) for x in range(num_of_elements)]
+    return a
+
+array100 = create_array(100)
+array1000 = create_array(1000)
+array10000 = create_array(5000)
+
+testowe_tabele = [array100, array1000, array10000]
+
+
+def timing(f):
+    @wraps(f)
+    def wrap(*args, **kw):
+        ts = time()
+        len_array = (len(*args))
+        result = f(*args, **kw)
+        te = time()
+        return [result, te-ts]
+    return wrap
+
+#Insertion sort
+@timing
+def Ins_sort(L):
+    for i in range(1, len(L)):
+        P_el = L[i]
+        j = i - 1
+
+        while j >= 0 and L[j] > P_el:
+            L[j + 1] = L[j]
+            j -= 1
+
+        L[j + 1] = P_el
+
+    return L
+
+
+#Selection sort
+@timing
+def Sec_sort(L):
+    nL = len(L)
+    p = 0
+    for i in range(nL):
+        m_id = i
+
+        for j in range(i + 1, nL):
+            p += 1
+            if L[m_id] > L[j]:
+                m_id = j
+
+        L[i], L[m_id] = L[m_id], L[i]
+    return L
+
+@timing
+def bubbleSort(arr):
+    n = len(arr)
+
+    for i in range(n - 1):
+
+        for j in range(0, n - i - 1):
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+    return arr
+
+
+@timing
+def mergeSort(L):
+    if len(L) > 1:
+        s = len(L) // 2
+        l = L[:s]
+        p = L[s:]
+
+        mergeSort(l)
+        mergeSort(p)
+
+        i = 0
+        j = 0
+        k = 0
+
+        while i < len(l) and j < len(p):
+            if l[i] <= p[j]:
+                L[k] = l[i]
+                i += 1
+            else:
+                L[k] = p[j]
+                j += 1
+            k += 1
+
+        while i < len(l):
+            L[k] = l[i]
+            i += 1
+            k += 1
+
+        while j < len(p):
+            L[k] = p[j]
+            j += 1
+            k += 1
+
+
+wyniki_sec_sort = []
+wyniki_merge_sort = []
+wyniki_bubble_sort = []
+wyniki_ins_sort = []
+
+
+for i in testowe_tabele:
+    wynik = Sec_sort(i)
+    wyniki_sec_sort.append(wynik[1])
+for i in testowe_tabele:
+    wynik = mergeSort(i)
+    wyniki_merge_sort.append(wynik[1])
+for i in testowe_tabele:
+    ts = time()
+    wynik = bubbleSort(i)
+    te = time()
+    wyniki_bubble_sort.append(te-ts)
+for i in testowe_tabele:
+    wynik = Ins_sort(i)
+    wyniki_ins_sort.append(wynik[1])
+
+#Sorting results
+print(f"select sort = {wyniki_sec_sort}")
+print(f"merge sort = {wyniki_merge_sort}")
+print(f"bubble sort = {wyniki_bubble_sort}")
+print(f"insert sort = {wyniki_ins_sort}")
+
+wyniki = [[wyniki_sec_sort],[wyniki_merge_sort],[wyniki_bubble_sort],[wyniki_ins_sort]]
+
+#Make a table:
+
+tabela_z_wynikami = pd.DataFrame({
+    'Select Sort':wyniki_sec_sort,
+    'Merge Sort':wyniki_merge_sort,
+    'Bubble Sort':wyniki_bubble_sort,
+    'Insert Sort':wyniki_ins_sort},
+index=['100', '1000', '5000'])
+
+tabela_z_wynikami.to_csv("Wyniki_sortowan.csv")
+print(tabela_z_wynikami)
+
+
+#Make plot
+barWidth = 0.25
+fig = plt.subplots(figsize=(12, 8))
+
+#Set height of bar
+s100 = [wyniki_sec_sort[0], wyniki_merge_sort[0], wyniki_bubble_sort[0], wyniki_ins_sort[0] ]
+s1000 = [wyniki_sec_sort[1], wyniki_merge_sort[1], wyniki_bubble_sort[1], wyniki_ins_sort[1] ]
+s10000 = [wyniki_sec_sort[2], wyniki_merge_sort[2], wyniki_bubble_sort[2], wyniki_ins_sort[2] ]
+
+#Set position of bar on X axis
+br1 = np.arange(len(s10000))
+br2 = [x + barWidth for x in br1]
+br3 = [x + barWidth for x in br2]
+
+#Make the plot
+plt.bar(br1, s100, color='r', width=barWidth,
+        edgecolor='grey', label='100')
+plt.bar(br2, s1000, color='g', width=barWidth,
+        edgecolor='grey', label='1000')
+plt.bar(br3, s10000, color='b', width=barWidth,
+        edgecolor='grey', label='5000')
+
+#Adding Xticks
+plt.xlabel('Alorytm', fontweight='bold', fontsize=15)
+plt.ylabel('Czas w sekundach', fontweight='bold', fontsize=15)
+plt.xticks([r + barWidth for r in range(len(s100))],
+           ['Select Sort', 'Merge Sort', 'Bubble Sort', 'Insert Sort'])
+
+
+
+plt.legend()
+plt.show()
