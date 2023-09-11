@@ -1,0 +1,12 @@
+import random
+
+lista = list(range(1000))
+random.shuffle(lista)
+print(lista)
+
+def wyszukaj_liniowo(spis, klucz):
+    for i in range(len(spis)):
+        if spis[i] ==  klucz:
+            return i
+        
+print(wyszukaj_liniowo(lista, 2))
